@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <IncludePath>../3rd/Pangolin/include;../3rd/Pangolin/lib/external/glew/include;../3rd/Pangolin/lib/external/libjpeg/include;../3rd/Pangolin/lib/external/libpng/include;../3rd/Pangolin/lib/external/zlib/include;$(IncludePath)</IncludePath>
+    <LibraryPath>../3rd/Pangolin/lib;../3rd/Pangolin/lib/external/glew/lib;../3rd/Pangolin/lib/external/libjpeg/lib;../3rd/Pangolin/lib/external/libpng/lib;../3rd/Pangolin/lib/external/zlib/lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>pangolin.lib;glew.lib;jpeg.lib;libpng16_static.lib;zlibstatic.lib;glu32.lib;opengl32.lib;mfplat.lib;mfreadwrite.lib;mfuuid.lib;strmiids.lib;mf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
