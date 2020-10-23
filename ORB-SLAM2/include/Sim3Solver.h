@@ -18,7 +18,6 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef SIM3SOLVER_H
 #define SIM3SOLVER_H
 
@@ -27,107 +26,100 @@
 
 #include "KeyFrame.h"
 
-
-
 namespace ORB_SLAM2
 {
+	class Sim3Solver
+	{
+	public:
 
-class Sim3Solver
-{
-public:
+		Sim3Solver(KeyFrame* pKF1, KeyFrame* pKF2, const std::vector<MapPoint*>& vpMatched12, const bool bFixScale = true);
 
-    Sim3Solver(KeyFrame* pKF1, KeyFrame* pKF2, const std::vector<MapPoint*> &vpMatched12, const bool bFixScale = true);
+		void SetRansacParameters(double probability = 0.99, int minInliers = 6, int maxIterations = 300);
 
-    void SetRansacParameters(double probability = 0.99, int minInliers = 6 , int maxIterations = 300);
+		cv::Mat find(std::vector<bool>& vbInliers12, int& nInliers);
 
-    cv::Mat find(std::vector<bool> &vbInliers12, int &nInliers);
+		cv::Mat iterate(int nIterations, bool& bNoMore, std::vector<bool>& vbInliers, int& nInliers);
 
-    cv::Mat iterate(int nIterations, bool &bNoMore, std::vector<bool> &vbInliers, int &nInliers);
+		cv::Mat GetEstimatedRotation();
+		cv::Mat GetEstimatedTranslation();
+		float GetEstimatedScale();
 
-    cv::Mat GetEstimatedRotation();
-    cv::Mat GetEstimatedTranslation();
-    float GetEstimatedScale();
+	protected:
 
+		void ComputeCentroid(cv::Mat& P, cv::Mat& Pr, cv::Mat& C);
 
-protected:
+		void ComputeSim3(cv::Mat& P1, cv::Mat& P2);
 
-    void ComputeCentroid(cv::Mat &P, cv::Mat &Pr, cv::Mat &C);
+		void CheckInliers();
 
-    void ComputeSim3(cv::Mat &P1, cv::Mat &P2);
+		void Project(const std::vector<cv::Mat>& vP3Dw, std::vector<cv::Mat>& vP2D, cv::Mat Tcw, cv::Mat K);
+		void FromCameraToImage(const std::vector<cv::Mat>& vP3Dc, std::vector<cv::Mat>& vP2D, cv::Mat K);
 
-    void CheckInliers();
+	protected:
 
-    void Project(const std::vector<cv::Mat> &vP3Dw, std::vector<cv::Mat> &vP2D, cv::Mat Tcw, cv::Mat K);
-    void FromCameraToImage(const std::vector<cv::Mat> &vP3Dc, std::vector<cv::Mat> &vP2D, cv::Mat K);
+		// KeyFrames and matches
+		KeyFrame* mpKF1;
+		KeyFrame* mpKF2;
 
+		std::vector<cv::Mat> mvX3Dc1;
+		std::vector<cv::Mat> mvX3Dc2;
+		std::vector<MapPoint*> mvpMapPoints1;
+		std::vector<MapPoint*> mvpMapPoints2;
+		std::vector<MapPoint*> mvpMatches12;
+		std::vector<size_t> mvnIndices1;
+		std::vector<size_t> mvSigmaSquare1;
+		std::vector<size_t> mvSigmaSquare2;
+		std::vector<size_t> mvnMaxError1;
+		std::vector<size_t> mvnMaxError2;
 
-protected:
+		int N;
+		int mN1;
 
-    // KeyFrames and matches
-    KeyFrame* mpKF1;
-    KeyFrame* mpKF2;
+		// Current Estimation
+		cv::Mat mR12i;
+		cv::Mat mt12i;
+		float ms12i;
+		cv::Mat mT12i;
+		cv::Mat mT21i;
+		std::vector<bool> mvbInliersi;
+		int mnInliersi;
 
-    std::vector<cv::Mat> mvX3Dc1;
-    std::vector<cv::Mat> mvX3Dc2;
-    std::vector<MapPoint*> mvpMapPoints1;
-    std::vector<MapPoint*> mvpMapPoints2;
-    std::vector<MapPoint*> mvpMatches12;
-    std::vector<size_t> mvnIndices1;
-    std::vector<size_t> mvSigmaSquare1;
-    std::vector<size_t> mvSigmaSquare2;
-    std::vector<size_t> mvnMaxError1;
-    std::vector<size_t> mvnMaxError2;
+		// Current Ransac State
+		int mnIterations;
+		std::vector<bool> mvbBestInliers;
+		int mnBestInliers;
+		cv::Mat mBestT12;
+		cv::Mat mBestRotation;
+		cv::Mat mBestTranslation;
+		float mBestScale;
 
-    int N;
-    int mN1;
+		// Scale is fixed to 1 in the stereo/RGBD case
+		bool mbFixScale;
 
-    // Current Estimation
-    cv::Mat mR12i;
-    cv::Mat mt12i;
-    float ms12i;
-    cv::Mat mT12i;
-    cv::Mat mT21i;
-    std::vector<bool> mvbInliersi;
-    int mnInliersi;
+		// Indices for random selection
+		std::vector<size_t> mvAllIndices;
 
-    // Current Ransac State
-    int mnIterations;
-    std::vector<bool> mvbBestInliers;
-    int mnBestInliers;
-    cv::Mat mBestT12;
-    cv::Mat mBestRotation;
-    cv::Mat mBestTranslation;
-    float mBestScale;
+		// Projections
+		std::vector<cv::Mat> mvP1im1;
+		std::vector<cv::Mat> mvP2im2;
 
-    // Scale is fixed to 1 in the stereo/RGBD case
-    bool mbFixScale;
+		// RANSAC probability
+		double mRansacProb;
 
-    // Indices for random selection
-    std::vector<size_t> mvAllIndices;
+		// RANSAC min inliers
+		int mRansacMinInliers;
 
-    // Projections
-    std::vector<cv::Mat> mvP1im1;
-    std::vector<cv::Mat> mvP2im2;
+		// RANSAC max iterations
+		int mRansacMaxIts;
 
-    // RANSAC probability
-    double mRansacProb;
+		// Threshold inlier/outlier. e = dist(Pi,T_ij*Pj)^2 < 5.991*mSigma2
+		float mTh;
+		float mSigma2;
 
-    // RANSAC min inliers
-    int mRansacMinInliers;
-
-    // RANSAC max iterations
-    int mRansacMaxIts;
-
-    // Threshold inlier/outlier. e = dist(Pi,T_ij*Pj)^2 < 5.991*mSigma2
-    float mTh;
-    float mSigma2;
-
-    // Calibration
-    cv::Mat mK1;
-    cv::Mat mK2;
-
-};
-
+		// Calibration
+		cv::Mat mK1;
+		cv::Mat mK2;
+	};
 } //namespace ORB_SLAM
 
 #endif // SIM3SOLVER_H

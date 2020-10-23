@@ -21,16 +21,16 @@ public:
 	};
 
 public:
-	void init(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer = true);
-	Mat track(const Mat & im1, const Mat & im2 = Mat());
+	void init(const string& strVocFile, const string& strSettingsFile, const eSensor sensor, const bool bUseViewer = true);
+	Mat track(const Mat& im1, const Mat& im2 = Mat());
 
-	static SLAM * createSingleObject();
+	static SLAM* createSingleObject();
 
 private:
 	SLAM();
-	SLAM(const SLAM & slam) = delete;
+	SLAM(const SLAM& slam) = delete;
 
 	~SLAM();
 };
 
-extern SLAM_API SLAM & slam;
+extern SLAM_API SLAM& slam;
