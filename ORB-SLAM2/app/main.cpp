@@ -20,7 +20,6 @@ string parameterFile = "camera.yaml";
 string vocFile = "Vocabulary/ORBvoc.txt";
 
 int main(int argc, char** argv) {
-
     // 声明 ORB-SLAM2 系统
     ORB_SLAM2::System SLAM(vocFile, parameterFile, ORB_SLAM2::System::MONOCULAR, true);
 
@@ -40,6 +39,8 @@ int main(int argc, char** argv) {
         auto now = chrono::system_clock::now();
         auto timestamp = chrono::duration_cast<chrono::milliseconds>(now - start);
         SLAM.TrackMonocular(frame, double(timestamp.count()) / 1000.0);
+        imshow("cap", frame);
+        cv::waitKey(1);
     }
 
     return 0;
